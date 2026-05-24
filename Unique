@@ -1,0 +1,306 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unique Word Battle</title>  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      background:linear-gradient(135deg,#141e30,#243b55);
+      color:white;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+    }
+
+    .container{
+      width:100%;
+      max-width:950px;
+      background:rgba(255,255,255,0.08);
+      backdrop-filter:blur(10px);
+      border-radius:25px;
+      padding:30px;
+      box-shadow:0 10px 40px rgba(0,0,0,0.4);
+    }
+
+    h1{
+      text-align:center;
+      font-size:3rem;
+      margin-bottom:10px;
+    }
+
+    .subtitle{
+      text-align:center;
+      opacity:.8;
+      margin-bottom:25px;
+    }
+
+    .payment-box{
+      background:rgba(0,255,149,0.1);
+      border:2px solid #00ff95;
+      padding:20px;
+      border-radius:18px;
+      text-align:center;
+      margin-bottom:30px;
+    }
+
+    .payment-box h2{
+      margin-bottom:10px;
+      color:#00ff95;
+    }
+
+    .payment-box p{
+      margin:8px 0;
+    }
+
+    .players{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:20px;
+      margin-bottom:25px;
+    }
+
+    .player{
+      background:rgba(255,255,255,0.1);
+      padding:20px;
+      border-radius:18px;
+      border:2px solid transparent;
+      transition:.3s;
+    }
+
+    .player:hover{
+      border-color:#00d4ff;
+      transform:translateY(-5px);
+    }
+
+    .eliminated{
+      opacity:.25;
+      transform:scale(.95);
+      pointer-events:none;
+      border-color:red;
+    }
+
+    .winner-card{
+      border-color:#00ff95 !important;
+      box-shadow:0 0 25px rgba(0,255,149,0.5);
+    }
+
+    .player h3{
+      color:#00d4ff;
+      margin-bottom:10px;
+    }
+
+    input{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      outline:none;
+      font-size:1rem;
+    }
+
+    button{
+      width:100%;
+      padding:15px;
+      border:none;
+      border-radius:14px;
+      background:#00d4ff;
+      font-size:1.1rem;
+      font-weight:bold;
+      cursor:pointer;
+      transition:.3s;
+    }
+
+    button:hover{
+      background:#00a6c7;
+      transform:scale(1.02);
+    }
+
+    .pay-btn{
+      background:#00ff95;
+      color:#111;
+      margin-top:15px;
+    }
+
+    .result{
+      margin-top:25px;
+      background:rgba(255,255,255,0.08);
+      border-radius:18px;
+      padding:25px;
+      text-align:center;
+      font-size:1.2rem;
+      line-height:1.8;
+      min-height:120px;
+    }
+
+    .winner{
+      color:#00ff95;
+      font-size:1.7rem;
+      font-weight:bold;
+    }
+
+    .tie{
+      color:#ffd166;
+      font-weight:bold;
+      font-size:1.4rem;
+    }
+
+    .pool{
+      margin-top:15px;
+      font-size:1rem;
+      opacity:.9;
+    }
+  </style></head>
+<body><div class="container">  <h1>UNIQUE WORD BATTLE</h1>
+  <p class="subtitle">Pay $1 • Enter a word • Last unique player survives</p>  <div class="payment-box" id="paymentBox">
+    <h2>💵 Entry Fee Required</h2>
+    <p>Each player pays <b>$1</b> before entering the battle.</p>
+    <p>5 Players = <b>$5 Prize Pool</b></p>
+    <p>Site takes <b>10%</b> commission.</p>
+    <p>Winner receives <b>$4.50</b></p><button class="pay-btn" onclick="activateGame()">
+  Pay & Start Game
+</button>
+
+  </div>  <div class="players"><div class="player" id="p1">
+  <h3>Player 1</h3>
+  <input type="text" id="w1" placeholder="Enter word">
+</div>
+
+<div class="player" id="p2">
+  <h3>Player 2</h3>
+  <input type="text" id="w2" placeholder="Enter word">
+</div>
+
+<div class="player" id="p3">
+  <h3>Player 3</h3>
+  <input type="text" id="w3" placeholder="Enter word">
+</div>
+
+<div class="player" id="p4">
+  <h3>Player 4</h3>
+  <input type="text" id="w4" placeholder="Enter word">
+</div>
+
+<div class="player" id="p5">
+  <h3>Player 5</h3>
+  <input type="text" id="w5" placeholder="Enter word">
+</div>
+
+  </div>  <button onclick="calculateWinner()" id="startBtn" disabled>
+    Start Round
+  </button>  <div class="result" id="result">
+    Waiting for players...
+  </div></div><script>
+
+let gameActive = false;
+let totalPool = 5;
+let siteFee = totalPool * 0.10;
+let winnerPrize = totalPool - siteFee;
+
+function activateGame(){
+
+  gameActive = true;
+
+  document.getElementById('startBtn').disabled = false;
+
+  document.getElementById('paymentBox').innerHTML = `
+    <h2>✅ Payments Completed</h2>
+    <p>Prize Pool: <b>$${totalPool}</b></p>
+    <p>Site Commission: <b>$${siteFee.toFixed(2)}</b></p>
+    <p>Winner Prize: <b>$${winnerPrize.toFixed(2)}</b></p>
+  `;
+}
+
+function calculateWinner(){
+
+  if(!gameActive){
+    alert('Players must pay before starting.');
+    return;
+  }
+
+  const players = [
+    {name:'Player 1',word:document.getElementById('w1').value.trim().toLowerCase(),card:'p1'},
+    {name:'Player 2',word:document.getElementById('w2').value.trim().toLowerCase(),card:'p2'},
+    {name:'Player 3',word:document.getElementById('w3').value.trim().toLowerCase(),card:'p3'},
+    {name:'Player 4',word:document.getElementById('w4').value.trim().toLowerCase(),card:'p4'},
+    {name:'Player 5',word:document.getElementById('w5').value.trim().toLowerCase(),card:'p5'}
+  ];
+
+  const result = document.getElementById('result');
+
+  const empty = players.some(p => p.word === '');
+
+  if(empty){
+    result.innerHTML = '⚠️ All players must enter a word.';
+    return;
+  }
+
+  let wordCount = {};
+
+  players.forEach(player=>{
+    wordCount[player.word] = (wordCount[player.word] || 0) + 1;
+  });
+
+  const uniquePlayers = players.filter(player => wordCount[player.word] === 1);
+
+  if(uniquePlayers.length === 0){
+    result.innerHTML = `
+      <span class="tie">💀 No unique words.</span><br>
+      Everyone has been eliminated.<br><br>
+      🔄 New players may now join.
+    `;
+    return;
+  }
+
+  let winner = uniquePlayers[0];
+
+  uniquePlayers.forEach(player=>{
+    if(player.word.length > winner.word.length){
+      winner = player;
+    }
+  });
+
+  document.querySelectorAll('.player').forEach(card=>{
+    card.classList.remove('winner-card');
+    card.classList.remove('eliminated');
+  });
+
+  players.forEach(player=>{
+
+    const card = document.getElementById(player.card);
+
+    if(player.name === winner.name){
+      card.classList.add('winner-card');
+    }else{
+      card.classList.add('eliminated');
+    }
+  });
+
+  result.innerHTML = `
+    <span class="winner">🏆 ${winner.name} survives!</span><br>
+
+    Winning word: <b>${winner.word}</b><br><br>
+
+    💰 Prize Won: <b>$${winnerPrize.toFixed(2)}</b><br>
+
+    🏢 Site Earned: <b>$${siteFee.toFixed(2)}</b><br>
+
+    ❌ Losing players removed from game<br>
+
+    🔄 New players can now join the next battle
+
+    <div class="pool">
+      Total Players: 5 • Entry Fee: $1 Each
+    </div>
+  `;
+}
+
+</script></body>
+</html>
